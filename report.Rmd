@@ -1,0 +1,138 @@
+---
+title: "BTC analytics R report: putting all together"
+author: "Ivan Kashilov"
+date: "December 13, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(quantmod)
+library(tidyverse)
+library(lubridate)
+library(syuzhet)
+```
+
+Let's have a look on Bitcoin stock price for the last year:
+
+```{r get data, echo=FALSE, message=FALSE}
+# Stock data
+stock_data <- getSymbols('BTC-USD', src='yahoo', auto.assign=FALSE,
+                                    from='2018-12-01', to='2019-12-01')
+chartSeries(stock_data, theme='white', name='Bitcoin stock price')
+
+# Tweets
+tweets <- read.csv('./crypto/text/data/btc_year_full_sentiments.csv', stringsAsFactors=FALSE)
+# Sort by date
+tweets <- tweets %>% arrange(ymd_hms(tweets$date)) 
+```
+
+<br/><br/>    
+We scraped tweets with *#btc, #bitcoin, #cryptocurrency, #crypto, #finance, #news* hashtags  
+for the same period. Now, let's look how number of tweets distributed per day for the whole dataset:
+ 
+```{r, avg sent, echo=FALSE, message=FALSE}
+per_day <- tweets %>% group_by(date = as.Date(ymd_hms(date))) %>%
+                      summarise(count = n())
+
+ggplot(per_day, aes(x=count)) + 
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, fill="#FF6666") + ggtitle('Daily tweets disribution')
+```
+
+Now we can calculte average sentiment value per day and plot it. It will show us any correlation
+between people's attitude to bitcoin and bitcoin stock price:
+
+```{r, rolling sentiment, echo=FALSE, message=FALSE}
+roll_sent <- tweets %>% group_by(date = as.Date(ymd_hms(date))) %>%
+                   summarise(mean_sent = mean(sentiment_cl))
+
+ggplot(roll_sent, aes(x=date, y=mean_sent)) + geom_line() + ylab('sent') + 
+                                              ggtitle('Sentiments rolling mean')
+```
+
+We can have a closer look at spikes on sentiments grapic and match them with relevant date range at stock price graphic:
+
+```{r, echo=FALSE, message=FALSE}
+stock_data$`BTC-USD.Adjusted` %>% autoplot() 
+```
+
+Now, using obtained average sentiments and stock price, let's look on both at differnt angle: by plotting heatmaps:
+
+```{r, daily returns, echo=FALSE, message=FALSE}
+library(iClick)
+library(PerformanceAnalytics)
+stock_ret <- na.omit(periodReturn(stock_data,
+                                  period='daily',
+                                  type='arithmetic'))
+names(stock_ret) <- c('Daily returns')
+calendarHeat(stock_ret, ncolors = 99, color = "r2b", date.form = "%Y-%m-%d")
+
+
+daily_sent <- as.xts(roll_sent$mean_sent, order.by=roll_sent$date)
+names(daily_sent) <- c('Avg daily sentiment')
+calendarHeat(daily_sent, ncolors = 99, color = "r2b", date.form = "%Y-%m-%d")
+```
+
+And finaly, let's pick the most volatile period (mid June - mid August 2019) 
+and analyse people's sentimets deeper:
+
+```{r, echo=FALSE, message=FALSE}
+candleChart(stock_data, subset='2019-06::2019-09', theme='white')
+```
+
+<br/><br/>    
+We will try to extract people's emotions from tweets sentimnts for 3 significant date ranges:  
+Range 1: June 1st - June 15th, when the price jumped up:
+
+```{r, emotions1, echo=FALSE, message=FALSE}
+tmp1 <- tweets %>% subset(date >= as.Date('2019-06-01') & date <= as.Date('2019-06-15'))
+
+sent2 <- get_nrc_sentiment(tmp1$text)
+sent3 <- as.data.frame(colSums(sent2))
+sent3 <- rownames_to_column(sent3) 
+colnames(sent3) <- c("emotion", "count")
+
+ggplot(sent3, aes(x = emotion, y = count, fill = emotion)) +
+  geom_bar(stat = "identity") + theme_minimal() +
+  theme(legend.position="none", panel.grid.major = element_blank()) +
+  labs(x = "Emotion", y = "Total Count") + ggtitle("Tweets Sentiments 'Emotions': Subset 1")
+
+```
+
+Range 2: mid July - mid August, when the price went down and then back up again:
+
+```{r, emotions2, echo=FALSE, message=FALSE}
+tmp2 <- tweets %>% subset(date >= as.Date('2019-07-15') & date <= as.Date('2019-08-15'))
+
+sent2 <- get_nrc_sentiment(tmp2$text)
+sent3 <- as.data.frame(colSums(sent2))
+sent3 <- rownames_to_column(sent3) 
+colnames(sent3) <- c("emotion", "count")
+
+ggplot(sent3, aes(x = emotion, y = count, fill = emotion)) +
+  geom_bar(stat = "identity") + theme_minimal() +
+  theme(legend.position="none", panel.grid.major = element_blank()) +
+  labs(x = "Emotion", y = "Total Count") + ggtitle("Tweets Sentiments 'Emotions': Subset 2")
+```
+
+Range 3: mid August - Spetember 1st, when the price were falling down:
+
+```{r, emotions3, echo=FALSE, message=FALSE}
+tmp3 <- tweets %>% subset(date >= as.Date('2019-08-16') & date <= as.Date('2019-09-01'))
+
+sent2 <- get_nrc_sentiment(tmp3$text)
+sent3 <- as.data.frame(colSums(sent2))
+sent3 <- rownames_to_column(sent3) 
+colnames(sent3) <- c("emotion", "count")
+
+ggplot(sent3, aes(x = emotion, y = count, fill = emotion)) +
+  geom_bar(stat = "identity") + theme_minimal() +
+  theme(legend.position="none", panel.grid.major = element_blank()) +
+  labs(x = "Emotion", y = "Total Count") + ggtitle("Tweets Sentiments 'Emotions': Subset 3")
+```
+
+## Conclusion:  
+Unfortunately, juxtaposition of daily returns and daily sentiments does not show us any correlation. The last chapter (when we were looking at people's emotions) shows as almost the same results due to simplicity of "emotions - extracting" approach. Also the data, scraped from twitter, was not filtered in any way. There were a lot of "unpopular" tweets (with number of likes less then 2). It can be quite possible, that hashtags did not refer to the content.   
+So I find this pipeline very perspective despite the fact that the results so far cannot be interpreted in any way.
