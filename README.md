@@ -10,11 +10,11 @@ Final project for BED-2056 (Data Science) course UiT Fall 2019
   
 So as we can see, the news have a huge affect to stock market. The goal of this project is to test it on the most volatile asset - cryptocurrency Bitcoin. 
 Due to the complexity of the task, the final submission consists of severial parts:  
-- obtaining the text data  
+- obtaining text data  
 - cleaning texts  
 - sentiment analysis  
 - combining text's sentimets with the stock market data  
-- price forecast
+- price forecasting
 
 ## Chapter 1: Scraping data
 Exploring the internet I found only two financial tweets datasets, both from Kaggle and both of them were not suitable for the project so I decided to find data myself. Choosing the source of the data was pretty naive: it could be official articles from financial magazines or social media data.
