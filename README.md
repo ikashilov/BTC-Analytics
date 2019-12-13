@@ -61,9 +61,10 @@ Although the results can not be used in practice, or even no correlation was fou
 - Models used for sentiment analysis were trained on regualar texts which were not specified in any way  
 
 ## Contents:
-Twitter bot **[./text/twitter_bot.py]** and data scraping notebook **[./text/twitter_bot.py]** 
-Cleaning tweets notebook **[./text/Tweets cleaning.ipynb]**
-Naive sentiment analysis **[./text/NLTK Sentiment Analysis.ipynb]** 
-Neural network's sentiment analysis **[./text/LSTM Sentiment Analysis.ipynb]**external link to google colab [**[https://drive.google.com/open?id=1MeW8r7qOZxjih4348dpFKjHxhxe-s5pJ]**]  
-R code which puts everything together **[./main.R]** its RMardown output **[./report.html]**  
+Twitter bot **[./text/twitter_bot.py]** and data scraping notebook **[./text/twitter_bot.py]**   
+Cleaning tweets notebook **[./text/Tweets cleaning.ipynb]**  
+Naive sentiment analysis **[./text/NLTK Sentiment Analysis.ipynb]**   
+Neural network's sentiment analysis **[./text/LSTM Sentiment Analysis.ipynb]** external link to google colab
+**[https://drive.google.com/open?id=1MeW8r7qOZxjih4348dpFKjHxhxe-s5pJ]**  
+R code which puts everything together **[./main.R]** its RMardown output **[./report.html]**   
 
