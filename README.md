@@ -1,7 +1,8 @@
 # BTC-Analytics
 Final project for BED-2056 (Data Science) course UiT Fall 2019
 
-*This documnet will guide through all parts of this project. All additional explantions can be found in source files.* You can access the report directly from your browser by going [here](https://ikashilov.github.io/BTC-Analytics/) Thanks to [GitHub Pages](https://pages.github.com/) 
+*This documnet will guide through all parts of this project. All additional explantions can be found in source files.*  
+You can access the report directly from your browser by going [here](https://ikashilov.github.io/BTC-Analytics/) Thanks to [GitHub Pages](https://pages.github.com/) 
 
 ## Chapter 0: Intro
 - *Tesla's stock jumped 2.5% after Tencent said it amassed a 5% stake in the electric car maker.* 
